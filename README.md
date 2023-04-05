@@ -4,6 +4,6 @@ This project was designed to be a simple random chat using local host with ratch
 
  Developed using PHP, jQuery and Ratchet. </h3>
  
-![chat](https://user-images.githubusercontent.com/110068135/229331375-2c14474c-fa93-49f6-a368-05571bc45a92.png)
+![chatnew](https://user-images.githubusercontent.com/110068135/230216764-a1e8ca1a-a515-4a65-a80e-f810c8a3f922.png)
 
 ![chat2](https://user-images.githubusercontent.com/110068135/229331376-238b6660-3095-4496-91ae-914d6b6e148e.png)

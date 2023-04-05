@@ -4,6 +4,9 @@ namespace MyApp;
 
 use Ratchet\MessageComponentInterface;
 use Ratchet\ConnectionInterface;
+use Usuario;
+
+require_once __DIR__ . "/../config/connection.php";
 
 class Chat implements MessageComponentInterface
 {
@@ -21,7 +24,8 @@ class Chat implements MessageComponentInterface
 
         $newConnMsg = [
             'type' => 'newConnection',
-            'id' => $conn->resourceId
+            'id' => $conn->resourceId,
+            'username' => ''
         ];
 
         $this->broadcast(json_encode($newConnMsg), $conn);
@@ -33,7 +37,6 @@ class Chat implements MessageComponentInterface
 
         $conn->send(json_encode($ownIdMsg));
     }
-
 
     public function onMessage(ConnectionInterface $from, $msg)
     {
@@ -52,10 +55,16 @@ class Chat implements MessageComponentInterface
 
         $disconnectionMsg = [
             'type' => 'disconnection',
-            'id' => $conn->resourceId
+            'id' => $conn->resourceId,
+            'username' => ''
         ];
 
         $this->broadcast(json_encode($disconnectionMsg), $conn, $conn->resourceId);
+
+        if (isset($conn->resourceId) && $conn->resourceId != null) {
+            $user = new Usuario($conn->resourceId, null);
+            $user->delete();
+        }
     }
 
     public function onError(ConnectionInterface $conn, \Exception $e)
@@ -74,5 +83,4 @@ class Chat implements MessageComponentInterface
         }
     }
 }
-
 ?>

@@ -103,7 +103,7 @@ class ComposerStaticInit30563b9411b4fd9f30605fa03b1def62
         ),
         'MyApp\\' => 
         array (
-            0 => __DIR__ . '/../..' . '/src',
+            0 => __DIR__ . '/../..' . '/src/models',
         ),
         'GuzzleHttp\\Psr7\\' => 
         array (
@@ -123,6 +123,8 @@ class ComposerStaticInit30563b9411b4fd9f30605fa03b1def62
 
     public static $classMap = array (
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
+        'MyApp\\Chat' => __DIR__ . '/../..' . '/src/models/Chat.php',
+        'Usuario' => __DIR__ . '/../..' . '/src/models/Usuario.php',
     );
 
     public static function getInitializer(ClassLoader $loader)

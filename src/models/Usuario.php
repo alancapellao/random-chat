@@ -13,28 +13,27 @@ class Usuario
 
     public function insert()
     {
-        global $conn;
+        global $pdo;
 
-        $query = $conn->prepare("SELECT id, username FROM usuarios WHERE id = ? or username = ?");
+        $query = $pdo->prepare("SELECT id, username FROM usuarios WHERE id = ? or username = ?");
         $query->execute(array($this->id, $this->username));
 
         if ($query->rowCount()) {
             return false;
         } else {
-            $query = $conn->prepare("INSERT INTO usuarios(id, username) values(?, ?)");
+            $query = $pdo->prepare("INSERT INTO usuarios(id, username) values(?, ?)");
             $query->execute(array($this->id, $this->username));
             return true;
         }
     }
 
-    public function close()
+    public function delete()
     {
-        global $conn;
+        global $pdo;
 
-        $query = $conn->prepare("DELETE FROM usuarios WHERE id = ?");
+        $query = $pdo->prepare("DELETE FROM usuarios WHERE id = ?");
         $query->execute(array($this->id));
         return true;
     }
 }
-
 ?>

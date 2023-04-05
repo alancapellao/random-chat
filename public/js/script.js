@@ -8,19 +8,19 @@ const t = new Date();
 let receivedId;
 
 conn.onopen = function (e) {
-    //console.log("Conectado");
+    console.log("Servidor conectado!");
 };
 
 conn.onmessage = function (e) {
     const data = JSON.parse(e.data);
 
-    if (data.type === 'newConnection') {
-        newJoin(data.id);
-    } else if (data.type === 'disconnection') {
-        newLeft(data.id);
+    if (data.type === 'newConnection' && data.username != '' && data.username != undefined) {
+        newJoin(data);
+    } else if (data.type === 'disconnection' && data.username != '' && data.username != undefined) {
+        newLeft(data);
     } else if (data.type === 'ownId') {
         receivedId = data.id;
-    } else {
+    } else if (data.msg != '' && data.msg != undefined) {
         showMessages('other', data);
     }
 };
@@ -29,7 +29,7 @@ $inpMessage.on('keypress', function (e) {
     if (e.key === "Enter") {
         if ($inpMessage.val() !== '') {
             const msg = {
-                name: $inpName.val(),
+                username: $inpName.val(),
                 msg: $inpMessage.val()
             };
             conn.send(JSON.stringify(msg));
@@ -46,7 +46,7 @@ $btnConfirm.on('click', function (e) {
 
         $.ajax({
 
-            url: 'controller/insert.php',
+            url: '../../src/controller/insert.php',
             type: "POST",
             data: {
                 id: receivedId,
@@ -55,11 +55,16 @@ $btnConfirm.on('click', function (e) {
             success: function (retorno) {
                 retorno = JSON.parse(retorno);
 
-                if (retorno["erro"]) {
-                    alert(retorno["mensagem"]);
-                } else {
+                if (!retorno["erro"]) {
                     $(".setuser").fadeOut(100);
                     $(".typezone .message").prop('disabled', false);
+
+                    const msg = {
+                        type: 'newConnection',
+                        id: receivedId,
+                        username: $inpName.val()
+                    };
+                    conn.send(JSON.stringify(msg));
                 }
             }
         });
@@ -69,24 +74,13 @@ $btnConfirm.on('click', function (e) {
     }
 });
 
-window.addEventListener('unload', function () {
-    $.ajax({
-        url: 'controller/close.php',
-        type: 'POST',
-        async: false,
-        data: {
-            id: receivedId
-        }
-    });
-});
-
 function showMessages(how, data) {
 
     const $li = $('<li>').addClass(how);
     const $divMsg = $('<div>').addClass('msg');
 
     if (how !== 'self') {
-        const $divUser = $('<div>').addClass('user').text(data.name);
+        const $divUser = $('<div>').addClass('user').text(data.username);
         $divMsg.append($divUser);
     }
 
@@ -99,14 +93,20 @@ function showMessages(how, data) {
 }
 
 function newJoin(data) {
-    const p = $('<p>').addClass('notification').text('User ' + data + ' joined the group');
+    const p = $('<p>').addClass('notification').text(data.username + ' joined the group');
     $('#chat').append(p);
 }
 
 function newLeft(data) {
-    const p = $('<p>').addClass('notification').text('User ' + data + ' left the group');
+    const p = $('<p>').addClass('notification').text(data.username + ' left the group');
     $('#chat').append(p);
 }
 
-
-
+window.addEventListener("beforeunload", function (e) {
+    const msg = {
+        type: 'disconnection',
+        id: receivedId,
+        username: $inpName.val()
+    };
+    conn.send(JSON.stringify(msg));
+});

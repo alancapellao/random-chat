@@ -1,8 +1,12 @@
 {
     "autoload": {
         "psr-4": {
-            "MyApp\\": "src"
-        }
+            "MyApp\\": "src/models"
+        },
+        "classmap": [
+            "src/models/", 
+            "src/config/"
+        ]
     },
     "require": {
         "cboden/ratchet": "^0.4"

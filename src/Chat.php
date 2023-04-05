@@ -25,7 +25,15 @@ class Chat implements MessageComponentInterface
         ];
 
         $this->broadcast(json_encode($newConnMsg), $conn);
+
+        $ownIdMsg = [
+            'type' => 'ownId',
+            'id' => $conn->resourceId
+        ];
+
+        $conn->send(json_encode($ownIdMsg));
     }
+
 
     public function onMessage(ConnectionInterface $from, $msg)
     {
@@ -66,3 +74,5 @@ class Chat implements MessageComponentInterface
         }
     }
 }
+
+?>

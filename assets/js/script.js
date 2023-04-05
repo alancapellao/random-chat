@@ -1,77 +1,112 @@
-var conn = new WebSocket('ws://localhost:8080');
+const conn = new WebSocket('ws://localhost:8080');
 
-var $form1 = $('#form1');
-var $inp_message = $('#message');
-var $inp_name = $('#username');
-var $area_content = $('#chat');
-var t = new Date();
+const $inpMessage = $('#message');
+const $inpName = $('#username');
+const $btnConfirm = $('#btnConfirm');
+const $areaContent = $('#chat');
+const t = new Date();
+let receivedId;
 
 conn.onopen = function (e) {
-    console.log("Conectado");
+    //console.log("Conectado");
 };
 
 conn.onmessage = function (e) {
-    var data = JSON.parse(e.data);
+    const data = JSON.parse(e.data);
 
     if (data.type === 'newConnection') {
         newJoin(data.id);
     } else if (data.type === 'disconnection') {
         newLeft(data.id);
+    } else if (data.type === 'ownId') {
+        receivedId = data.id;
     } else {
-        showMessages('other', e.data);
+        showMessages('other', data);
     }
 };
 
-$inp_message.on('keypress', function (e) {
-
+$inpMessage.on('keypress', function (e) {
     if (e.key === "Enter") {
-        if ($inp_message.val() != '') {
-            var msg = { 'name': $inp_name.val(), 'msg': $inp_message.val() };
-            msg = JSON.stringify(msg);
-
-            conn.send(msg);
+        if ($inpMessage.val() !== '') {
+            const msg = {
+                name: $inpName.val(),
+                msg: $inpMessage.val()
+            };
+            conn.send(JSON.stringify(msg));
             showMessages('self', msg);
-            $inp_message.val("");
+            $inpMessage.val('');
         }
     }
 });
 
+$btnConfirm.on('click', function (e) {
+    e.preventDefault();
+
+    if ($inpName.val() !== "") {
+
+        $.ajax({
+
+            url: 'controller/insert.php',
+            type: "POST",
+            data: {
+                id: receivedId,
+                username: $inpName.val()
+            },
+            success: function (retorno) {
+                retorno = JSON.parse(retorno);
+
+                if (retorno["erro"]) {
+                    alert(retorno["mensagem"]);
+                } else {
+                    $(".setuser").fadeOut(100);
+                    $(".typezone .message").prop('disabled', false);
+                }
+            }
+        });
+    } else {
+        alert("Please enter a username.");
+        $(".setuser input.username").focus();
+    }
+});
+
+window.addEventListener('unload', function () {
+    $.ajax({
+        url: 'controller/close.php',
+        type: 'POST',
+        async: false,
+        data: {
+            id: receivedId
+        }
+    });
+});
+
 function showMessages(how, data) {
 
-    data = JSON.parse(data);
+    const $li = $('<li>').addClass(how);
+    const $divMsg = $('<div>').addClass('msg');
 
-    var $li = $('<li>').addClass(how);
-
-    var $div_msg = $('<div>').addClass('msg');
-
-    if (how != "self") {
-        var $div_user = $('<div>').addClass('user').text(data.name);
-        $div_msg.append($div_user);
+    if (how !== 'self') {
+        const $divUser = $('<div>').addClass('user').text(data.name);
+        $divMsg.append($divUser);
     }
 
-    var $p = $('<p>').text(data.msg);
-
-    var $time = $('<time>').text(t.getHours() + ':' + (t.getMinutes() < 10 ? '0' + t.getMinutes() : t.getMinutes()));
-
-    $div_msg.append($p);
-    $div_msg.append($time);
-
-    $li.append($div_msg);
-
-    $area_content.append($li);
+    const $p = $('<p>').text(data.msg);
+    const $time = $('<time>').text(t.getHours() + ':' + (t.getMinutes() < 10 ? '0' + t.getMinutes() : t.getMinutes()));
+    $divMsg.append($p);
+    $divMsg.append($time);
+    $li.append($divMsg);
+    $areaContent.append($li);
 }
 
 function newJoin(data) {
-    data = JSON.parse(data);
-    var p = $('<p>').addClass('notification').text('Connection id: ' + data + ' joined the group');
+    const p = $('<p>').addClass('notification').text('User ' + data + ' joined the group');
     $('#chat').append(p);
 }
 
 function newLeft(data) {
-    var p = $('<p>').addClass('notification').text('Connection id: ' + data + ' left the group');
+    const p = $('<p>').addClass('notification').text('User ' + data + ' left the group');
     $('#chat').append(p);
 }
-
 
 
 

@@ -36,4 +36,3 @@ class Usuario
         return true;
     }
 }
-?>

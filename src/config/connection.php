@@ -13,5 +13,3 @@ try {
 } catch (PDOException $e) {
     $pdo = null;
 }
-
-?>

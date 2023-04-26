@@ -48,12 +48,12 @@ $btnConfirm.on('click', function (e) {
 
             url: '../../src/controller/insert.php',
             type: "POST",
+            dataType: 'json',
             data: {
                 id: receivedId,
                 username: $inpName.val()
             },
             success: function (retorno) {
-                retorno = JSON.parse(retorno);
 
                 if (!retorno["erro"]) {
                     $(".setuser").fadeOut(100);
